@@ -18,7 +18,7 @@ A few things show up in every module and are worth pulling out before the module
 
 - **Auth.** NAAS uses the original AuthCentre — the v1 sitting in production here ([v2](AuthcentreV2.md) is the weekend rewrite). It accepts basic auth, validates against AD, and pulls back the user's resource groups. Each endpoint declares the `(service, role)` pair it needs and the middleware rejects anything that doesn't have it.
 - **Logs and notifications.** Two destinations on every action — the central log aggregator for forensics, and an internal chat channel plus an email DL for live awareness. The team sees DNS records being created and firewall changes scrolling past in real time.
-- **Postgres + the Django admin.** The DB started as SQLite and outgrew it. The admin panel doubles as the operations UI for the team — fixing bad state, tracing requests, and answering "where did this row come from" through a web UI rather than a psql shell.
+- **Postgres + the Django admin.** The DB started as SQLite and then postgres. The admin panel doubles for DB access is handy.
 
 ## DNS
 
