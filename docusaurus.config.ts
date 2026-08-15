@@ -59,6 +59,26 @@ const config: Config = {
     ],
   ],
 
+  plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'documentation',
+        path: 'documentation',
+        routeBasePath: 'documentation',
+        sidebarPath: './sidebarsDocumentation.ts',
+        editUrl:
+          'https://github.com/kalyanramchimmili/kalyanramchimmili.github.io/tree/main/',
+        sidebarItemsGenerator: async ({defaultSidebarItemsGenerator, ...args}) => {
+          const items = await defaultSidebarItemsGenerator(args);
+          return items.filter(
+            (item) => !(item.type === 'doc' && item.id === 'index'),
+          );
+        },
+      },
+    ],
+  ],
+
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
@@ -71,6 +91,7 @@ const config: Config = {
       items: [
         {to: '/docs/projects', label: 'Projects', position: 'left'},
         {to: '/docs/leetcode', label: 'LeetCode', position: 'left'},
+        {to: '/documentation', label: 'Documentation', position: 'left'},
         {to: '/blog', label: 'Blog', position: 'left'},
         {
           href: 'https://github.com/kalyanramchimmili',
