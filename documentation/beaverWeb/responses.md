@@ -5,11 +5,11 @@ title: Responses
 
 # Responses
 
-Every handler must return a `Response` object (or subclass). BeaverWeb ships five out of the box.
+Every handler must return a `Response` object or one of its subclasses. Five response types ship with BeaverWeb.
 
 ## `Response` — plain text
 
-The default. Body is a string, `Content-Type` is `text/plain; charset=utf-8`.
+The default response type. The body is a string and `Content-Type` is set to `text/plain; charset=utf-8`.
 
 ```python
 from beaver import Response
@@ -29,7 +29,7 @@ def create(req):
 
 ## `JSONResponse` — for APIs
 
-Serializes any JSON-compatible value with `json.dumps`, sets `Content-Type: application/json`.
+Serializes any JSON-compatible value using `json.dumps` and sets `Content-Type: application/json`.
 
 ```python
 from beaver import JSONResponse
@@ -39,7 +39,7 @@ def user_detail(req):
     return JSONResponse({"id": req.path_params["id"]})
 ```
 
-Lists work too:
+Lists are also supported:
 
 ```python
 @app.get("/items")
@@ -49,7 +49,7 @@ def list_items(req):
 
 ## `HTMLResponse` — direct HTML
 
-Same as `Response` but with `Content-Type: text/html; charset=utf-8`.
+Identical to `Response`, but with `Content-Type` set to `text/html; charset=utf-8`.
 
 ```python
 from beaver import HTMLResponse
@@ -59,11 +59,11 @@ def page(req):
     return HTMLResponse("<h1>Hello</h1>")
 ```
 
-For anything non-trivial, use [templates](./templates) instead of inline HTML.
+For non-trivial markup, use [templates](./templates) rather than inline HTML.
 
 ## `Redirect` — 302 by default
 
-Sets `Location` header and returns an empty body.
+Sets the `Location` header and returns an empty body.
 
 ```python
 from beaver import Redirect
@@ -81,7 +81,7 @@ return Redirect("/new-page", status=307)   # temporary redirect, preserves metho
 
 ## `PermanentRedirect` — 301
 
-Convenience subclass:
+A convenience subclass for permanent redirects:
 
 ```python
 from beaver import PermanentRedirect
@@ -93,7 +93,7 @@ def legacy(req):
 
 ## Binary content
 
-`Response` accepts raw `bytes` too — needed for images, PDFs, or any non-text content:
+`Response` also accepts raw `bytes`, which is required for images, PDFs, or any non-text content:
 
 ```python
 @app.get("/logo.png")
@@ -102,12 +102,12 @@ def logo(req):
         return Response(f.read(), headers={"Content-Type": "image/png"})
 ```
 
-`Content-Length` is always computed from the actual byte count — you never need to set it yourself.
+`Content-Length` is always computed from the actual byte count; it does not need to be set manually.
 
-## What you can override
+## Header behavior
 
 | Header | Behavior |
 |---|---|
-| `Content-Type` | You set it → wins. Not set → uses subclass default. |
+| `Content-Type` | Overrides the subclass default when set explicitly. |
 | `Content-Length` | Always overwritten with the actual body byte count. |
-| Anything else | Passes through as-is. |
+| Any other header | Passes through unchanged. |

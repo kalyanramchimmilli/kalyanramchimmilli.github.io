@@ -26,7 +26,7 @@ def update_item(req): ...
 def delete_item(req): ...
 ```
 
-Every decorator returns your handler unchanged — no wrapping, no proxying. It just files the function into the routing table under a `(method, path)` key.
+Each decorator registers the handler in the routing table under a `(method, path)` key. The handler is returned unchanged — there is no wrapping or proxying.
 
 ## Path parameters
 
@@ -38,7 +38,7 @@ def user_detail(req):
     return JSONResponse({"id": req.path_params["id"]})
 ```
 
-Multiple parameters work too:
+Multiple parameters are supported:
 
 ```python
 @app.get("/users/{uid}/posts/{pid}")
@@ -46,51 +46,51 @@ def user_post(req):
     return JSONResponse(req.path_params)
 ```
 
-Values are always strings. If you need integers, coerce inside the handler:
+Captured values are always strings. Coerce inside the handler if a specific type is required:
 
 ```python
 @app.get("/users/{id}")
 def user_detail(req):
-    user_id = int(req.path_params["id"])   # will raise ValueError on non-numeric
+    user_id = int(req.path_params["id"])   # raises ValueError on non-numeric input
     ...
 ```
 
 ## Precedence — first registered wins
 
-If two routes could match the same URL, whichever was registered first wins:
+If two routes could match the same URL, the one registered first is selected:
 
 ```python
-@app.get("/users/me")           # <- register static first
+@app.get("/users/me")           # register static routes first
 def me(req):
     return Response("me")
 
-@app.get("/users/{id}")         # <- dynamic second
+@app.get("/users/{id}")         # dynamic routes second
 def by_id(req):
     return Response(f"id={req.path_params['id']}")
 ```
 
 Result:
 
-- `GET /users/me` → hits `me` handler
-- `GET /users/42` → hits `by_id` handler
+- `GET /users/me` → `me` handler
+- `GET /users/42` → `by_id` handler
 
-Reverse the order and `/users/me` gets captured as an id. Always register more specific routes before more generic ones.
+If the order is reversed, `/users/me` is captured as an `id`. Register more specific routes before more generic ones.
 
 ## Trailing slashes
 
-BeaverWeb is **lenient** on trailing and internal slashes. All of these hit the same route registered as `/hello`:
+BeaverWeb is lenient with trailing and repeated slashes. All of the following resolve to the same route registered as `/hello`:
 
 - `/hello`
 - `/hello/`
 - `/hello//`
 
-Root works similarly — `/` and `//` both hit `@app.get("/")`.
+The root path behaves the same way — `/` and `//` both resolve to `@app.get("/")`.
 
-**One exception:** `//hello` returns 404 because `urllib.parse.urlsplit` treats the leading `//` as URL authority. This is standard URL parsing, not a BeaverWeb quirk.
+One exception: `//hello` returns 404 because `urllib.parse.urlsplit` treats a leading `//` as a URL authority. This is standard URL parsing behavior.
 
-## Method mismatch — 405 with Allow
+## Method mismatch — 405 with `Allow`
 
-If you request an unsupported method on a known path, you get a 405 with an `Allow` header listing the methods registered for that path:
+A request to an unsupported method on a known path returns a 405 with an `Allow` header listing the methods registered for that path:
 
 ```
 > POST /users/42
@@ -98,7 +98,7 @@ If you request an unsupported method on a known path, you get a 405 with an `All
 < Allow: GET
 ```
 
-If multiple methods are registered:
+When multiple methods are registered:
 
 ```python
 @app.get("/x")
@@ -110,11 +110,11 @@ def p(req): ...
 # DELETE /x → 405, "Allow: GET, PUT"
 ```
 
-## What you get for free
+## Default error responses
 
 | Case | Response |
 |---|---|
 | Malformed request (bad HTTP line) | 400 Bad Request |
 | Path not registered | 404 Not Found |
-| Path registered, wrong method | 405 Method Not Allowed + `Allow` |
+| Path registered, wrong method | 405 Method Not Allowed with `Allow` header |
 | Handler raises | 500 Internal Server Error (traceback logged) |

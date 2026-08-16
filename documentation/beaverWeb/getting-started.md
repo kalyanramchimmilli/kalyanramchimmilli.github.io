@@ -11,9 +11,9 @@ title: Getting Started
 pip install beaverweb
 ```
 
-That pulls in Jinja2 as a dependency. Nothing else.
+This installs Jinja2 as a dependency. No other third-party packages are required.
 
-## Your first app
+## Your first application
 
 Create a file called `app.py`:
 
@@ -38,7 +38,7 @@ Run it:
 python app.py
 ```
 
-You should see:
+The process reports the listening address:
 
 ```
 Listening on 127.0.0.1:5000
@@ -51,21 +51,19 @@ curl http://127.0.0.1:5000/
 # → Hello, BeaverWeb!
 ```
 
-That's the whole hello-world.
-
 ## Reading the request
 
-Every handler receives a `Request` object. It has:
+Every handler receives a `Request` object with the following attributes:
 
-- `req.method` — `"GET"`, `"POST"`, etc.
-- `req.path` — the URL path (`"/users/42"`)
-- `req.headers` — dict of headers, lowercased keys
-- `req.query_params` — a `MultiDict` for `?foo=bar&tag=a&tag=b`
-- `req.path_params` — dict of captured path variables
-- `req.body` — raw bytes of the request body
-- `req.json()` — parses body as JSON if `Content-Type: application/json`
+- `req.method` — the HTTP method (`"GET"`, `"POST"`, etc.)
+- `req.path` — the request path (e.g. `"/users/42"`)
+- `req.headers` — a dict of headers with lowercased keys
+- `req.query_params` — a `MultiDict` of query-string values (supports `?tag=a&tag=b`)
+- `req.path_params` — a dict of captured path variables
+- `req.body` — the raw request body as bytes
+- `req.json()` — parses the body as JSON when `Content-Type: application/json`
 
-Example combining query params and headers:
+Example combining query parameters and headers:
 
 ```python
 @app.get("/hello")
@@ -75,7 +73,7 @@ def hello(req):
     return Response(f"Hello, {name}! You're using {ua}.")
 ```
 
-## What's next
+## Next steps
 
 - [Routing](./routing) — path parameters, precedence rules, 405 handling
 - [Responses](./responses) — `JSONResponse`, `HTMLResponse`, `Redirect`
