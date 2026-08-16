@@ -5,11 +5,11 @@ title: Templates
 
 # Templates
 
-BeaverWeb comes with Jinja2 templating.
+BeaverWeb ships with Jinja2 templating built in.
 
 ## Directory layout
 
-Templates live in a `templates/` folder next to your app:
+By default, templates are loaded from a `templates/` directory alongside the application:
 
 ```
 your-project/
@@ -28,7 +28,7 @@ def home(req):
     return app.render_template("index.html", name="World")
 ```
 
-`render_template(name, status=200, headers=None, **context)` looks up `templates/index.html`, renders it with the given context, and returns an `HTMLResponse`.
+`render_template(name, status=200, headers=None, **context)` loads `templates/index.html`, renders it with the provided context, and returns an `HTMLResponse`.
 
 Inside `index.html`:
 
@@ -38,17 +38,17 @@ Inside `index.html`:
 
 ## Custom templates directory
 
-If you don't want to call your folder `templates/`:
+To use a directory other than `templates/`:
 
 ```python
 app = App(templates_dir="views")
 ```
 
-The path is relative to your working directory when you run the app.
+The path is resolved relative to the application's working directory at runtime.
 
-## Loops, conditionals, inheritance
+## Loops, conditionals, and inheritance
 
-Standard Jinja2. Loop over a list:
+Standard Jinja2 syntax is supported. Loop over a list:
 
 ```html
 <ul>
@@ -58,7 +58,7 @@ Standard Jinja2. Loop over a list:
 </ul>
 ```
 
-Conditional:
+Conditional rendering:
 
 ```html
 {% if user %}
@@ -68,7 +68,7 @@ Conditional:
 {% endif %}
 ```
 
-Template inheritance — put common structure in `base.html`:
+Template inheritance places common structure in `base.html`:
 
 ```html
 <!-- templates/base.html -->
@@ -90,11 +90,11 @@ Template inheritance — put common structure in `base.html`:
 
 ## Error handling
 
-`render_template` raises `FileNotFoundError` if the template doesn't exist. BeaverWeb's built-in error handling turns that into a 500 with the traceback in your logs — no template name is leaked to the client.
+`render_template` raises `FileNotFoundError` when the template does not exist. BeaverWeb's error handling converts this into a 500 response with the traceback recorded in the application logs; the template name is not exposed to the client.
 
 ## Serving static assets
 
-BeaverWeb doesn't ship a generic static file handler yet. For a single file (like a logo), register a route that returns the bytes:
+BeaverWeb does not include a generic static file handler. For individual assets, register a route that returns the file's bytes:
 
 ```python
 @app.get("/static/logo.png")
@@ -103,7 +103,7 @@ def logo(req):
         return Response(f.read(), headers={"Content-Type": "image/png"})
 ```
 
-Then reference it in your template:
+Reference the asset from a template:
 
 ```html
 <img src="/static/logo.png" alt="Logo">
